@@ -1,21 +1,22 @@
 import * as THREE from 'three';
-import { STATE, WATER_Y, LAKE_R, DIFFICULTY } from './config.js';
+import { STATE, WATER_Y, LAKE_R } from './config.js';
 import { pickSpecies, rollWeight } from './fish.js';
 import { createReel, stepReel } from './reeling.js';
 import { waveH } from './world.js';
-import { recordCatch, stats } from './stats.js';
+import { recordCatch } from './stats.js';
 import { setMessage, renderStats, reelView, resultModal } from './ui.js';
 
 const CAST_DUR = 0.75;
 
 // Fishing state machine: IDLE -> CASTING -> WAITING -> BITE -> REELING -> RESULT.
-export function createGame({ player, props, input }){
+export function createGame({ player, props, input, lake }){
   let state = STATE.IDLE;
   let time = 0;
   let timers = [];
   let castT = 0;
   let rippleCd = 0;
   let reel = null;
+  let D = lake.difficulty;
 
   const castTarget = new THREE.Vector3();
   const nearPt = new THREE.Vector3();
@@ -60,7 +61,7 @@ export function createGame({ player, props, input }){
     state = STATE.BITE;
     props.showBang();
     rippleCd = 0;
-    after(DIFFICULTY.biteWindowMs, () => {
+    after(D.biteWindowMs, () => {
       resetToIdle();
       setMessage('Ryba zerwała się i uciekła...', 2500);
     });
@@ -74,7 +75,7 @@ export function createGame({ player, props, input }){
 
   function startReeling(){
     state = STATE.REELING;
-    reel = createReel(pickSpecies(), reelView.trackHeight());
+    reel = createReel(pickSpecies(lake), reelView.trackHeight(), D);
     reelView.show(reel.species, reel.zoneH);
     props.addRipple(bobPos.x, bobPos.z, 3.5);
     rippleCd = 0;
@@ -93,8 +94,7 @@ export function createGame({ player, props, input }){
 
   function landFish(species){
     const w = rollWeight(species);
-    recordCatch(species, w);
-    renderStats(stats);
+    renderStats(recordCatch(lake.id, species, w));
 
     state = STATE.RESULT;
     reel = null;
@@ -148,7 +148,7 @@ export function createGame({ player, props, input }){
       state = STATE.WAITING;
       bobPos.copy(castTarget);
       props.addRipple(bobPos.x, bobPos.z, 3);
-      after(DIFFICULTY.waitMinMs + Math.random() * DIFFICULTY.waitRangeMs, triggerBite);
+      after(D.waitMinMs + Math.random() * D.waitRangeMs, triggerBite);
     }
   }
 
@@ -186,8 +186,16 @@ export function createGame({ player, props, input }){
     props.setLine(tipPos, 0.05);
   }
 
+  // Switch lakes: abandons any cast/reel in progress.
+  function setLake(next){
+    lake = next;
+    D = next.difficulty;
+    resultModal.hide();
+    resetToIdle();
+  }
+
   return {
     get state(){ return state; },
-    doAction, dismissResult, update
+    doAction, dismissResult, update, setLake
   };
 }

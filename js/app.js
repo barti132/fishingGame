@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { STATE } from './config.js';
-import { stats } from './stats.js';
-import { els, renderStats, updateHud, showFatal } from './ui.js';
+import { STATE, LAKES } from './config.js';
+import { getStats, getLastLakeId, setLastLakeId } from './stats.js';
+import { els, renderStats, renderLakes, renderLakeTitle, updateHud, showFatal } from './ui.js';
 import { createScene } from './scene.js';
 import { buildWorld } from './world.js';
 import { createPlayer } from './player.js';
@@ -18,21 +18,38 @@ export function start(){
     showFatal('Twoja przeglądarka nie obsługuje WebGL.');
     return;
   }
-  const { renderer, canvas, scene, camera, sky, sunGroup } = ctx;
+  const { renderer, canvas, scene, camera, sky, sunGroup, applyTheme } = ctx;
 
-  renderStats(stats);
+  const colliders = [];
+  let lake = LAKES.find(l => l.id === getLastLakeId()) || LAKES[0];
+  let world;
 
-  const world = buildWorld(scene);
-  const player = createPlayer(scene, world.colliders);
+  const player = createPlayer(scene, colliders);
   const props = createFishingProps(scene);
 
   let game;
   const input = createInput(canvas, els.joy, els.joyKnob, {
     isResult:  () => game.state === STATE.RESULT,
     isReeling: () => game.state === STATE.REELING,
-    onAction:  () => game.doAction()
+    onAction:  () => game.doAction(),
+    onDigit:   n => { if(LAKES[n - 1]) switchLake(LAKES[n - 1]); }
   });
-  game = createGame({ player, props, input });
+  game = createGame({ player, props, input, lake });
+
+  function switchLake(next){
+    if(world && next === lake) return;
+    if(world) world.dispose();
+    lake = next;
+    setLastLakeId(lake.id);
+    applyTheme(lake.theme);
+    world = buildWorld(scene, lake, colliders);
+    player.reset();
+    game.setLake(lake);
+    renderStats(getStats(lake.id));
+    renderLakeTitle(lake);
+    renderLakes(LAKES, lake.id, switchLake);
+  }
+  switchLake(lake);
 
   els.actionBtn.addEventListener('click', () => { game.doAction(); els.actionBtn.blur(); });
   els.continueBtn.addEventListener('click', () => game.dismissResult());

@@ -8,6 +8,8 @@ export const els = {
   actionBtn: $('actionBtn'),
   joy: $('joy'),
   joyKnob: $('joyKnob'),
+  lakes: $('lakes'),
+  lakeName: $('lakeName'),
   statCatches: $('statCatches'),
   statBest: $('statBest'),
   reel: $('reel'),
@@ -97,3 +99,26 @@ export const resultModal = {
     els.continueBtn.blur();
   }
 };
+
+// ---- Lake picker ----
+export function renderLakes(lakes, activeId, onPick){
+  els.lakes.textContent = '';
+  lakes.forEach((lake, i) => {
+    const b = document.createElement('button');
+    b.className = 'lake-btn' + (lake.id === activeId ? ' active' : '');
+    b.tabIndex = -1;
+    b.textContent = (i + 1) + '. ' + lake.name;
+    const small = document.createElement('small');
+    small.textContent = lake.level;
+    b.appendChild(small);
+    b.addEventListener('click', () => { onPick(lake); b.blur(); });
+    els.lakes.appendChild(b);
+  });
+}
+
+export function renderLakeTitle(lake){
+  els.lakeName.textContent = '';
+  const b = document.createElement('b');
+  b.textContent = lake.name;
+  els.lakeName.append(b, ' · ' + lake.level);
+}

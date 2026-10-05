@@ -124,6 +124,10 @@ export function createPlayer(scene, colliders){
     update,
     nearShore(){ return Math.hypot(group.position.x, group.position.z) < LAKE_R + SHORE_REACH; },
     faceYaw(yaw){ targetYaw = yaw; },
+    reset(){
+      group.position.set(0, 0, START_Z);
+      group.rotation.y = targetYaw = Math.PI;
+    },
     windUpRod(){ rodPivot.rotation.x = -1.5; }
   };
 }

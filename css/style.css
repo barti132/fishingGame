@@ -64,6 +64,31 @@ body{
 .stats{ display:flex; gap:16px; font-size:.74rem; color:var(--cream-dim); font-variant-numeric:tabular-nums; }
 .stats b{ display:block; font-family:'Baloo 2',sans-serif; font-size:.98rem; color:var(--cream); font-weight:700; }
 
+/* ---------- Lake picker ---------- */
+.lake-name{ font-size:.74rem; color:var(--cream-dim); margin:-2px 0 6px; }
+.lake-name b{ color:var(--cream); font-weight:600; }
+#lakes{
+  top:126px; left:12px;
+  padding:6px;
+  display:flex; flex-direction:column; gap:4px;
+  pointer-events:auto;
+}
+.lake-btn{
+  font:600 .74rem 'Inter',system-ui,sans-serif;
+  color:var(--cream-dim);
+  background:transparent;
+  border:1px solid transparent;
+  border-radius:9px;
+  padding:5px 10px;
+  text-align:left;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.lake-btn small{ display:block; font-weight:400; font-size:.66rem; opacity:.8; }
+.lake-btn.active{ color:var(--ink); background:var(--gold); }
+.lake-btn:not(.active):hover{ border-color:var(--hud-border); color:var(--cream); }
+
 /* ---------- Help ---------- */
 #help{ top:12px; right:12px; padding:9px 14px; font-size:.76rem; line-height:1.55; color:var(--cream-dim); }
 #help b{ color:var(--cream); font-weight:600; }

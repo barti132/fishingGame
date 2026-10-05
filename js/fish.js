@@ -1,13 +1,12 @@
-import { SPECIES } from './config.js';
-
-export function pickSpecies(){
-  const total = SPECIES.reduce((s, f) => s + f.weight, 0);
+export function pickSpecies(lake){
+  const list = lake.species;
+  const total = list.reduce((s, f) => s + f.weight, 0);
   let r = Math.random() * total;
-  for(const f of SPECIES){
+  for(const f of list){
     r -= f.weight;
     if(r <= 0) return f;
   }
-  return SPECIES[0];
+  return list[0];
 }
 
 export function rollWeight(species){

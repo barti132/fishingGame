@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { HORIZON } from './config.js';
 
 // Renderer, scene, camera, sky dome, sun and lights.
 // Throws if WebGL is unavailable.
@@ -12,7 +11,7 @@ export function createScene(stage){
   stage.insertBefore(canvas, stage.firstChild);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(HORIZON, 40, 170);
+  scene.fog = new THREE.Fog(0xffffff, 40, 170);
   const camera = new THREE.PerspectiveCamera(55, 1, 0.3, 600);
 
   // ---- Sky dome + sun ----
@@ -24,7 +23,7 @@ export function createScene(stage){
       uniforms:{
         topC:{ value:new THREE.Color(0x2b3a6b) },
         midC:{ value:new THREE.Color(0x9a739a) },
-        botC:{ value:new THREE.Color(HORIZON) }
+        botC:{ value:new THREE.Color(0xffffff) }
       },
       vertexShader:'varying float vY; void main(){ vY = normalize(position).y; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
       fragmentShader:'uniform vec3 topC; uniform vec3 midC; uniform vec3 botC; varying float vY; void main(){ float h = clamp(vY,0.0,1.0); vec3 c = mix(botC, midC, smoothstep(0.0,0.22,h)); c = mix(c, topC, smoothstep(0.18,0.75,h)); if(vY < 0.0) c = botC; gl_FragColor = vec4(c,1.0); }'
@@ -42,7 +41,8 @@ export function createScene(stage){
   scene.add(sunGroup);
 
   // ---- Lights ----
-  scene.add(new THREE.HemisphereLight(0xffdcb8, 0x3b4a2c, 0.75));
+  const hemi = new THREE.HemisphereLight(0xffdcb8, 0x3b4a2c, 0.75);
+  scene.add(hemi);
   const sunLight = new THREE.DirectionalLight(0xffc98a, 0.95);
   sunLight.position.copy(sunDir).multiplyScalar(70);
   sunLight.castShadow = true;
@@ -51,6 +51,18 @@ export function createScene(stage){
   sc.left = -55; sc.right = 55; sc.top = 55; sc.bottom = -55; sc.near = 1; sc.far = 200;
   sunLight.shadow.bias = -0.0007;
   scene.add(sunLight);
+
+  // Recolor sky, fog, sun and lights for a lake theme.
+  function applyTheme(t){
+    scene.fog.color.setHex(t.horizon);
+    scene.fog.near = t.fogNear; scene.fog.far = t.fogFar;
+    const u = sky.material.uniforms;
+    u.topC.value.setHex(t.skyTop); u.midC.value.setHex(t.skyMid); u.botC.value.setHex(t.horizon);
+    sunCore.material.color.setHex(t.sunCore);
+    sunHalo.material.color.setHex(t.sunHalo);
+    sunLight.color.setHex(t.sunColor);
+    hemi.color.setHex(t.hemiSky); hemi.groundColor.setHex(t.hemiGround);
+  }
 
   function resize(){
     const w = stage.clientWidth, h = stage.clientHeight;
@@ -63,5 +75,5 @@ export function createScene(stage){
   window.addEventListener('resize', resize);
   resize();
 
-  return { renderer, canvas, scene, camera, sky, sunGroup };
+  return { renderer, canvas, scene, camera, sky, sunGroup, applyTheme };
 }

@@ -1,7 +1,7 @@
 import { clamp } from './utils.js';
 
 // Keyboard, pointer (camera drag / reel hold), wheel zoom and virtual joystick.
-// hooks: { isResult(), isReeling(), onAction() }
+// hooks: { isResult(), isReeling(), onAction(), onDigit(n) }
 export function createInput(canvas, joy, joyKnob, hooks){
   const view = { yaw:0, pitch:0.42, dist:9.5 };
   let keys = {};
@@ -16,6 +16,8 @@ export function createInput(canvas, joy, joyKnob, hooks){
     if(e.code === 'Space'){
       holdKey = true;
       if(!hooks.isReeling()) hooks.onAction();
+    }else if(/^Digit[1-9]$/.test(e.code)){
+      hooks.onDigit(+e.code.slice(5));
     }else if(e.code === 'KeyE'){
       if(!hooks.isReeling()) hooks.onAction();
     }
