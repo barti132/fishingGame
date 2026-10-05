@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Łowisko 3D — Let's Fish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js" } }
+</script>
+</head>
+<body>
+
+<div id="stage">
+  <div class="hud" id="title">
+    <h1>Łowisko <span>3D</span></h1>
+    <div class="stats">
+      <div>Złowione<b id="statCatches">0</b></div>
+      <div>Rekord<b id="statBest">—</b></div>
+    </div>
+  </div>
+
+  <div class="hud" id="help">
+    <b>WASD</b> / strzałki: ruch<br>
+    <b>Przeciągnij myszą</b>: kamera<br>
+    <b>Kółko</b>: zoom<br>
+    <b>E</b> lub <b>spacja</b>: wędka
+  </div>
+
+  <div class="hud" id="message"></div>
+  <button class="action-btn" id="actionBtn" tabindex="-1">Zarzuć wędkę</button>
+
+  <div id="joy"><div id="joyKnob"></div></div>
+
+  <div class="hud" id="reel">
+    <div class="reel-track" id="reelTrack">
+      <div class="player-zone" id="playerZone"></div>
+      <div class="fish-icon" id="fishIcon">🐟</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="reel-hint">Trzymaj <b>spację</b> lub ekran, by unieść haczyk</div>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-emoji" id="modalEmoji">🐟</div>
+    <div class="modal-title" id="modalTitle">Złowiono!</div>
+    <div class="rarity-tag" id="modalRarity"></div>
+    <div class="modal-sub" id="modalSub"></div>
+    <button class="action-btn" id="continueBtn">Łów dalej</button>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
